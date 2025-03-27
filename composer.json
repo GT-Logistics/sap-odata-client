@@ -1,10 +1,19 @@
 {
     "name": "gtlogistics/sap-odata-client",
+    "tyoe": "library",
+    "license": "LGPL-2.1-or-later",
     "autoload": {
         "psr-4": {
             "Gtlogistics\\Sap\\Odata\\": "src"
         }
     },
+    "authors": [
+        {
+            "name": "Brandon Antonio Lorenzo",
+            "email": "bantonio@gtglobal.com"
+        }
+    ],
+    "minimum-stability": "stable",
     "require": {
         "php": "^8.3",
         "ext-simplexml": "*",
