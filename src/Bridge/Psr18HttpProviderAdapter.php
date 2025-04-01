@@ -8,6 +8,9 @@ use Psr\Http\Message\StreamFactoryInterface;
 use SaintSystems\OData\HttpRequestMessage;
 use SaintSystems\OData\IHttpProvider;
 
+/**
+ * @internal
+ */
 final class Psr18HttpProviderAdapter implements IHttpProvider
 {
     public function __construct(

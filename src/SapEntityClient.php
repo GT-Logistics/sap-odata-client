@@ -4,6 +4,7 @@ namespace Gtlogistics\Sap\Odata;
 
 use Gtlogistics\Sap\Odata\Bridge\Psr18HttpProviderAdapter;
 use Gtlogistics\Sap\Odata\Model\SapEntity;
+use Gtlogistics\Sap\Odata\OData\SapErrorPlugin;
 use Gtlogistics\Sap\Odata\OData\ODataV2Plugin;
 use Http\Client\Common\PluginClient;
 use Psr\Http\Client\ClientInterface;
@@ -37,6 +38,7 @@ final class SapEntityClient
                     new PluginClient(
                         $httpClient,
                         [
+                            new SapErrorPlugin(),
                             new ODataV2Plugin($streamFactory),
                         ],
                     ),

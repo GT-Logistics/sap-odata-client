@@ -2,6 +2,6 @@
 
 namespace Gtlogistics\Sap\Odata\Exception;
 
-class UnknownException extends \Exception
+class UnknownException extends \RuntimeException
 {
 }
