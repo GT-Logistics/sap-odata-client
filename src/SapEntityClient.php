@@ -56,11 +56,6 @@ final class SapEntityClient
         return $this->link;
     }
 
-    public function getName(): ?string
-    {
-        return $this->getMetadata()->getName();
-    }
-
     public function getMetadata(): SapEntity
     {
         return $this->metadataProvider->getEntityMetadata($this->link);

@@ -12,7 +12,7 @@ final readonly class SapProperty
         private ?string $label,
         private Type $type,
         private bool $nullable,
-        private bool $required,
+        private bool $mandatory,
     ) {
     }
 
@@ -36,9 +36,9 @@ final readonly class SapProperty
         return $this->nullable;
     }
 
-    public function isRequired(): bool
+    public function isMandatory(): bool
     {
-        return $this->required;
+        return $this->mandatory;
     }
 
     public static function fromXml(\SimpleXMLElement $xml): self
