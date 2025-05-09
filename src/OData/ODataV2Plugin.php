@@ -3,7 +3,6 @@
 namespace Gtlogistics\Sap\Odata\OData;
 
 use Gtlogistics\Sap\Odata\Util\ArrayUtils;
-use Gtlogistics\Sap\Odata\Util\IterableUtils;
 use Gtlogistics\Sap\Odata\Util\UriUtils;
 use Http\Client\Common\Plugin;
 use Http\Promise\Promise;
@@ -81,7 +80,7 @@ final class ODataV2Plugin implements Plugin
     {
         $preferences = [];
         foreach ($request->getHeader('prefer') as $header) {
-            $rawPreferences = IterableUtils::map(
+            $rawPreferences = \iter\map(
                 static fn (string $rawPreference) => explode('=', $rawPreference),
                 explode(';', $header),
             );

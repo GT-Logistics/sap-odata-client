@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @internal
  */
-class SapErrorPlugin implements Plugin
+final class SapErrorPlugin implements Plugin
 {
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {

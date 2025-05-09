@@ -2,8 +2,6 @@
 
 namespace Gtlogistics\Sap\Odata\Model;
 
-use Gtlogistics\Sap\Odata\Util\IterableUtils;
-
 final readonly class SapMetadata
 {
     /**
@@ -17,8 +15,8 @@ final readonly class SapMetadata
     public function __construct(
         iterable $reports,
     ) {
-        $this->entities = iterator_to_array(IterableUtils::mapWithKeys(
-            static fn (SapEntity $entity) => [$entity->getName(), $entity],
+        $this->entities = iterator_to_array(\iter\flatMap(
+            static fn (SapEntity $entity) => yield $entity->getName() => $entity,
             $reports,
         ));
     }
@@ -38,7 +36,7 @@ final readonly class SapMetadata
         $metadata->registerXPathNamespace('edm', 'http://schemas.microsoft.com/ado/2008/09/edm');
 
         $entitySets = $metadata->xpath('//edm:EntitySet');
-        $reports = IterableUtils::map(static function (\SimpleXMLElement $entitySet) use ($metadata) {
+        $reports = \iter\map(static function (\SimpleXMLElement $entitySet) use ($metadata) {
             $name = $entitySet['Name'];
             [, $entityType] = explode('.', $entitySet['EntityType']);
             $entity = $metadata->xpath("//edm:EntityType[@Name='$entityType']")[0];

@@ -2,8 +2,6 @@
 
 namespace Gtlogistics\Sap\Odata\Model;
 
-use Gtlogistics\Sap\Odata\Util\IterableUtils;
-
 final readonly class SapEntity
 {
     /**
@@ -45,7 +43,7 @@ final readonly class SapEntity
         $entity->registerXPathNamespace('edm', 'http://schemas.microsoft.com/ado/2008/09/edm');
 
         $sapAttributes = $entity->attributes('sap', true);
-        $properties = IterableUtils::map(SapProperty::fromXml(...), $entity->xpath('edm:Property'));
+        $properties = \iter\map(SapProperty::fromXml(...), $entity->xpath('edm:Property'));
 
         return new self(
             $name,

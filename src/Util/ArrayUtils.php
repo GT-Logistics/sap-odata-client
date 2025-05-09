@@ -2,6 +2,9 @@
 
 namespace Gtlogistics\Sap\Odata\Util;
 
+/**
+ * @internal
+ */
 final class ArrayUtils
 {
     /**

@@ -4,6 +4,9 @@ namespace Gtlogistics\Sap\Odata\Util;
 
 use Psr\Http\Message\UriInterface;
 
+/**
+ * @internal
+ */
 final readonly class UriUtils
 {
     /**
