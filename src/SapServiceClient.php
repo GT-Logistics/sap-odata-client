@@ -3,6 +3,7 @@
 namespace Gtlogistics\Sap\Odata;
 
 use Gtlogistics\Sap\Odata\Exception\UnknownException;
+use Gtlogistics\Sap\Odata\Model\SapMetadata;
 use Http\Client\Common\Plugin\AddPathPlugin;
 use Http\Client\Common\PluginClient;
 use Psr\Http\Client\ClientInterface;
@@ -12,15 +13,13 @@ use Psr\Http\Message\UriFactoryInterface;
 
 final class SapServiceClient
 {
-    private SapMetadataProvider $metadataProvider;
-
     public function __construct(
         private readonly ClientInterface $httpClient,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
+        private readonly SapMetadataProvider $metadataProvider,
         private readonly string $link,
     ) {
-        $this->metadataProvider = new SapMetadataProvider($httpClient, $requestFactory);
     }
 
     public static function create(
@@ -30,15 +29,22 @@ final class SapServiceClient
         StreamFactoryInterface $streamFactory,
         string $link,
     ): self {
+        $scopedClient = new PluginClient(
+            $httpClient,
+            [
+                new AddPathPlugin($uriFactory->createUri('/' . trim($link, '/'))),
+            ],
+        );
+
         return new self(
-            new PluginClient(
-                $httpClient,
-                [
-                    new AddPathPlugin($uriFactory->createUri('/' . trim($link, '/'))),
-                ],
-            ),
+            $scopedClient,
             $requestFactory,
             $streamFactory,
+            new SapMetadataProvider(
+                $scopedClient,
+                $requestFactory,
+                $uriFactory,
+            ),
             $link,
         );
     }
@@ -69,5 +75,10 @@ final class SapServiceClient
     public function getEntity(string $link): SapEntityClient
     {
         return SapEntityClient::create($this->httpClient, $this->requestFactory, $this->streamFactory, $this->metadataProvider, $link);
+    }
+
+    public function getMetadata(): SapMetadata
+    {
+        return $this->metadataProvider->getMetadata();
     }
 }

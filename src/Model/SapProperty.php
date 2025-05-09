@@ -2,11 +2,17 @@
 
 namespace Gtlogistics\Sap\Odata\Model;
 
+use Gtlogistics\Sap\Odata\Enum\Type;
+use Gtlogistics\Sap\Odata\Util\TypeUtils;
+
 final readonly class SapProperty
 {
     public function __construct(
         private string $name,
         private ?string $label,
+        private Type $type,
+        private bool $nullable,
+        private bool $required,
     ) {
     }
 
@@ -20,13 +26,31 @@ final readonly class SapProperty
         return $this->label;
     }
 
+    public function getType(): Type
+    {
+        return $this->type;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->required;
+    }
+
     public static function fromXml(\SimpleXMLElement $xml): self
     {
-        $sapAttributes = $xml->attributes('sap', true);
+        $sap = $xml->attributes('sap', true);
 
         return new self(
             $xml['Name'] ?? null,
-            $sapAttributes['label'] ?? null,
+            $sap['label'] ?? null,
+            Type::from($xml['Type']),
+            TypeUtils::parseBoolean($xml['Nullable'] ?? ''),
+            TypeUtils::parseBoolean($sap['mandatory'] ?? ''),
         );
     }
 }

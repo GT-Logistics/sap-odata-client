@@ -5,32 +5,39 @@ namespace Gtlogistics\Sap\Odata;
 use Gtlogistics\Sap\Odata\Exception\UnknownException;
 use Gtlogistics\Sap\Odata\Model\SapMetadata;
 use Gtlogistics\Sap\Odata\Model\SapEntity;
+use Gtlogistics\Sap\Odata\Util\UriUtils;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 
 final class SapMetadataProvider
 {
-    private SapMetadata $metadata;
-
     public function __construct(
         private readonly ClientInterface $httpClient,
         private readonly RequestFactoryInterface $requestFactory,
+        private readonly UriFactoryInterface $uriFactory,
     ) {
     }
 
     public function getEntityMetadata(string $entity): SapEntity
     {
-        return $this->getMetadata()->getEntity($entity);
+        return $this->retrieveMetadata($entity)->getEntity($entity);
     }
 
-    private function getMetadata(): SapMetadata
+    public function getMetadata(): SapMetadata
     {
-        return $this->metadata ??= $this->retrieveMetadata();
+        return $this->retrieveMetadata();
     }
 
-    private function retrieveMetadata(): SapMetadata
+    private function retrieveMetadata(?string $entity = null): SapMetadata
     {
-        $request = $this->requestFactory->createRequest('GET', '/$metadata');
+        $query = [];
+        if ($entity !== null) {
+            $query['entityset'] = $entity;
+        }
+
+        $uri = $this->uriFactory->createUri('/$metadata');
+        $request = $this->requestFactory->createRequest('GET', UriUtils::serializeQuery($uri, $query));
         $response = $this->httpClient->sendRequest($request);
         $body = $response->getBody()->__toString();
 
