@@ -2,6 +2,7 @@
 
 namespace Gtlogistics\Sap\Odata;
 
+use Gtlogistics\Sap\Odata\Enum\ODataVersion;
 use Gtlogistics\Sap\Odata\Exception\UnknownException;
 use Http\Client\Common\Plugin\AuthenticationPlugin;
 use Http\Client\Common\Plugin\BaseUriPlugin;
@@ -21,6 +22,7 @@ final class SapClient
         private readonly UriFactoryInterface $uriFactory,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
+        private readonly ODataVersion $odataVersion,
     ) {
     }
 
@@ -66,6 +68,34 @@ final class SapClient
         );
     }
 
+    public static function forHana(
+        string $hostname,
+        string $username,
+        string $password,
+        ?ClientInterface $httpClient = null,
+        ?UriFactoryInterface $uriFactory = null,
+        ?RequestFactoryInterface $requestFactory = null,
+        ?StreamFactoryInterface $streamFactory = null,
+        ODataVersion $odataVersion = ODataVersion::VERSION_2,
+    ): self {
+        $endpoint = match ($odataVersion) {
+            ODataVersion::VERSION_2 => 'sap/opu/odata/sap/',
+            ODataVersion::VERSION_4 => 'sap/opu/odata4/sap/',
+        };
+
+        return self::create(
+            $hostname,
+            $endpoint,
+            $username,
+            $password,
+            $httpClient,
+            $uriFactory,
+            $requestFactory,
+            $streamFactory,
+            $odataVersion,
+        );
+    }
+
     public static function create(
         string $hostname,
         string $endpoint,
@@ -75,6 +105,7 @@ final class SapClient
         ?UriFactoryInterface $uriFactory = null,
         ?RequestFactoryInterface $requestFactory = null,
         ?StreamFactoryInterface $streamFactory = null,
+        ODataVersion $odataVersion = ODataVersion::VERSION_2,
     ): self {
         $httpClient ??= Psr18ClientDiscovery::find();
         $uriFactory ??= Psr17FactoryDiscovery::findUriFactory();
@@ -92,6 +123,7 @@ final class SapClient
             $uriFactory,
             $requestFactory,
             $streamFactory,
+            $odataVersion,
         );
     }
 
@@ -116,6 +148,6 @@ final class SapClient
 
     public function getService(string $link): SapServiceClient
     {
-        return SapServiceClient::create($this->httpClient, $this->uriFactory, $this->requestFactory, $this->streamFactory, $link);
+        return SapServiceClient::create($this->httpClient, $this->uriFactory, $this->requestFactory, $this->streamFactory, $this->odataVersion, $link);
     }
 }

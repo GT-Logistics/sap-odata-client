@@ -2,6 +2,7 @@
 
 namespace Gtlogistics\Sap\Odata;
 
+use Gtlogistics\Sap\Odata\Enum\ODataVersion;
 use Gtlogistics\Sap\Odata\Exception\UnknownException;
 use Gtlogistics\Sap\Odata\Model\SapMetadata;
 use Http\Client\Common\Plugin\AddPathPlugin;
@@ -18,6 +19,7 @@ final class SapServiceClient
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly SapMetadataProvider $metadataProvider,
+        private readonly ODataVersion $odataVersion,
         private readonly string $link,
     ) {
     }
@@ -27,6 +29,7 @@ final class SapServiceClient
         UriFactoryInterface $uriFactory,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory,
+        ODataVersion $odataVersion,
         string $link,
     ): self {
         $scopedClient = new PluginClient(
@@ -45,6 +48,7 @@ final class SapServiceClient
                 $requestFactory,
                 $uriFactory,
             ),
+            $odataVersion,
             $link,
         );
     }
@@ -74,7 +78,7 @@ final class SapServiceClient
 
     public function getEntity(string $link): SapEntityClient
     {
-        return SapEntityClient::create($this->httpClient, $this->requestFactory, $this->streamFactory, $this->metadataProvider, $link);
+        return SapEntityClient::create($this->httpClient, $this->requestFactory, $this->streamFactory, $this->metadataProvider, $this->odataVersion, $link);
     }
 
     public function getMetadata(): SapMetadata

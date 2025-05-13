@@ -3,6 +3,7 @@
 namespace Gtlogistics\Sap\Odata;
 
 use Gtlogistics\Sap\Odata\Bridge\Psr18HttpProviderAdapter;
+use Gtlogistics\Sap\Odata\Enum\ODataVersion;
 use Gtlogistics\Sap\Odata\Model\SapEntity;
 use Gtlogistics\Sap\Odata\OData\SapErrorPlugin;
 use Gtlogistics\Sap\Odata\OData\ODataV2Plugin;
@@ -28,8 +29,17 @@ final class SapEntityClient
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory,
         SapMetadataProvider $metadataProvider,
+        ODataVersion $odataVersion,
         string $link,
     ): self {
+        $plugins = [new SapErrorPlugin()];
+
+        // The ODataClient speak OData V4 natively,
+        // so we add a translation plugin from V4 to V2
+        if ($odataVersion === ODataVersion::VERSION_2) {
+            $plugins[] = new ODataV2Plugin($streamFactory);
+        }
+
         return new self(
             new ODataClient(
                 '/',
@@ -37,10 +47,7 @@ final class SapEntityClient
                 new Psr18HttpProviderAdapter(
                     new PluginClient(
                         $httpClient,
-                        [
-                            new SapErrorPlugin(),
-                            new ODataV2Plugin($streamFactory),
-                        ],
+                        $plugins,
                     ),
                     $requestFactory,
                     $streamFactory
