@@ -42,7 +42,9 @@ final class SapEntityClient
 
         return new self(
             new ODataClient(
-                '/',
+                // We use a default base URL to comply with the library,
+                // but we replace further up in the plugin client chain
+                'https://example.com/',
                 null,
                 new Psr18HttpProviderAdapter(
                     new PluginClient(

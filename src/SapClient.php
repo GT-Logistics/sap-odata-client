@@ -116,7 +116,11 @@ final class SapClient
             new PluginClient(
                 $httpClient,
                 [
-                    new BaseUriPlugin($uriFactory->createUri(rtrim($hostname, '/') . '/' . $endpoint)),
+                    new BaseUriPlugin(
+                        $uriFactory->createUri(rtrim($hostname, '/') . '/' . $endpoint),
+                        // Needed to keep the host in the OData client
+                        ['replace' => true],
+                    ),
                     new AuthenticationPlugin(new BasicAuth($username, $password)),
                 ],
             ),
