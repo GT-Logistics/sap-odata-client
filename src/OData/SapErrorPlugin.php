@@ -23,13 +23,14 @@ final class SapErrorPlugin implements Plugin
                 return $response;
             }
 
+            $body = $response->getBody()->__toString();
             try {
-                $data = json_decode($response->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
+                $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
             } catch (\JsonException) {
             }
 
             throw new SapException(
-                $data['error']['message']['value'] ?? 'Unknown error',
+                $data['error']['message']['value'] ?? $body ?? 'Unknown error',
                 $data['error']['code'] ?? '0',
             );
         });
