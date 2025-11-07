@@ -30,7 +30,7 @@ final class SapErrorPlugin implements Plugin
             }
 
             throw new SapException(
-                $data['error']['message']['value'] ?? $body ?? 'Unknown error',
+                $data['error']['message']['value'] ?? $data['error']['message'] ?? $body ?: 'Unknown error',
                 $data['error']['code'] ?? '0',
             );
         });

@@ -4,7 +4,6 @@ namespace Gtlogistics\Sap\Odata;
 
 use Gtlogistics\Sap\Odata\Bridge\Psr18HttpProviderAdapter;
 use Gtlogistics\Sap\Odata\Enum\ODataVersion;
-use Gtlogistics\Sap\Odata\Model\SapEntity;
 use Gtlogistics\Sap\Odata\OData\SapErrorPlugin;
 use Gtlogistics\Sap\Odata\OData\ODataV2Plugin;
 use Http\Client\Common\PluginClient;
@@ -17,18 +16,19 @@ use SaintSystems\OData\Query\Builder;
 
 final class SapEntityClient
 {
+    private readonly string $link;
+
     public function __construct(
         private readonly IODataClient $odataClient,
-        private readonly SapMetadataProvider $metadataProvider,
-        private readonly string $link,
+        string $link,
     ) {
+        $this->link = '/' . trim($link, '/');
     }
 
     public static function create(
         ClientInterface $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory,
-        SapMetadataProvider $metadataProvider,
         ODataVersion $odataVersion,
         string $link,
     ): self {
@@ -55,7 +55,6 @@ final class SapEntityClient
                     $streamFactory
                 )
             ),
-            $metadataProvider,
             $link,
         );
     }
@@ -63,11 +62,6 @@ final class SapEntityClient
     public function getLink(): string
     {
         return $this->link;
-    }
-
-    public function getMetadata(): SapEntity
-    {
-        return $this->metadataProvider->getEntityMetadata($this->link);
     }
 
     public function query(): Builder

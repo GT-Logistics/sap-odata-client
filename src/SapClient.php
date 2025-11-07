@@ -131,27 +131,17 @@ final class SapClient
         );
     }
 
-    /**
-     * @return iterable<SapServiceClient>
-     */
-    public function getServices(): iterable
+    public function getMetadataProvider(): SapMetadataProvider
     {
-        $request = $this->requestFactory->createRequest('GET', '');
-        $response = $this->httpClient->sendRequest($request);
-        $body = $response->getBody()->__toString();
-
-        if ($response->getStatusCode() !== 200) {
-            throw new UnknownException($body ?: 'Unknown error');
-        }
-
-        $feed = new \SimpleXMLElement($body);
-        foreach ($feed->xpath('//atom:link') as $link) {
-            yield $this->getService($link['href']);
-        }
+        return new SapMetadataProvider(
+            $this->httpClient,
+            $this->requestFactory,
+            $this->uriFactory,
+        );
     }
 
-    public function getService(string $link): SapServiceClient
+    public function getEntity(string $link): SapEntityClient
     {
-        return SapServiceClient::create($this->httpClient, $this->uriFactory, $this->requestFactory, $this->streamFactory, $this->odataVersion, $link);
+        return SapEntityClient::create($this->httpClient, $this->requestFactory, $this->streamFactory, $this->odataVersion, $link);
     }
 }

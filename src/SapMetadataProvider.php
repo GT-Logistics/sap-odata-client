@@ -19,24 +19,64 @@ final class SapMetadataProvider
     ) {
     }
 
-    public function getEntityMetadata(string $entity): SapEntity
+    /**
+     * @return iterable<string>
+     */
+    public function getServices(): iterable
     {
-        return $this->retrieveMetadata($entity)->getEntity($entity);
+        $request = $this->requestFactory->createRequest('GET', '/');
+        $response = $this->httpClient->sendRequest($request);
+        $body = $response->getBody()->__toString();
+
+        if ($response->getStatusCode() !== 200) {
+            throw new UnknownException($body ?: 'Unknown error');
+        }
+
+        $feed = new \SimpleXMLElement($body);
+        foreach ($feed->xpath('//atom:link') as $link) {
+            yield $link['href'];
+        }
     }
 
-    public function getMetadata(): SapMetadata
+    /**
+     * @return iterable<string>
+     */
+    public function getEntities(string $service): iterable
     {
-        return $this->retrieveMetadata();
+        $request = $this->requestFactory->createRequest('GET', '/' . $service);
+        $response = $this->httpClient->sendRequest($request);
+        $body = $response->getBody()->__toString();
+
+        if ($response->getStatusCode() !== 200) {
+            throw new UnknownException($body ?: 'Unknown error');
+        }
+
+        $serviceElement = new \SimpleXMLElement($body);
+        $serviceElement->registerXPathNamespace('app', 'http://www.w3.org/2007/app');
+
+        foreach ($serviceElement->xpath('//app:collection') as $collection) {
+            yield $collection['href'];
+        }
     }
 
-    private function retrieveMetadata(?string $entity = null): SapMetadata
+    public function getServiceMetadata(string $service): SapMetadata
+    {
+        return $this->retrieveMetadata($service);
+    }
+
+    public function getEntityMetadata(string $service, string $entity): SapEntity
+    {
+        return $this->retrieveMetadata($service, $entity)->getEntity($entity);
+    }
+
+    private function retrieveMetadata(string $service, ?string $entity = null): SapMetadata
     {
         $query = [];
         if ($entity !== null) {
             $query['entityset'] = $entity;
         }
 
-        $uri = $this->uriFactory->createUri('/$metadata');
+        $uri = $this->uriFactory->createUri('/' . $service . '/$metadata');
         $request = $this->requestFactory->createRequest('GET', UriUtils::serializeQuery($uri, $query));
         $response = $this->httpClient->sendRequest($request);
         $body = $response->getBody()->__toString();
