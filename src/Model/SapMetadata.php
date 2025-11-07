@@ -22,6 +22,14 @@ final class SapMetadata
     }
 
     /**
+     * @return SapEntity[]
+     */
+    public function getEntities(): array
+    {
+        return $this->entities;
+    }
+
+    /**
      * @return SapEntity
      */
     public function getEntity(string $entity): SapEntity
